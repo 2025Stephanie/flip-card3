@@ -26,7 +26,13 @@
     }
 
     p {
+      margin-bottom: 10px;
+    }
+
+    #countdown {
+      font-size: 20px;
       margin-bottom: 30px;
+      color: #d35400;
     }
 
     .card-container {
@@ -76,7 +82,7 @@
     }
 
     .card-back {
-      background: #a3d5ff; /* 暖色系藍色 */
+      background: #a3d5ff;
       color: #333;
       transform: rotateY(180deg);
     }
@@ -84,23 +90,24 @@
 </head>
 <body>
 
-  <h1>🎴 翻牌拿豪禮</h1>
-  <p>點擊任一張卡片查看你將獲得哪個禮！</p>
+  <h1>🎴 翻牌抽禮遊戲</h1>
+  <p>點擊任一張卡片查看你獲得的是哪一禮！</p>
+  <div id="countdown">請在 <span id="time">30</span> 秒內翻牌！</div>
 
   <div class="card-container">
-    <div class="card" onclick="flipCard(this)">
+    <div class="card" onclick="flipCard(this, '🎁 幸運禮')">
       <div class="card-inner">
         <div class="card-front">點我</div>
         <div class="card-back">🎁 幸運禮</div>
       </div>
     </div>
-    <div class="card" onclick="flipCard(this)">
+    <div class="card" onclick="flipCard(this, '💰 發財禮')">
       <div class="card-inner">
         <div class="card-front">點我</div>
         <div class="card-back">💰 發財禮</div>
       </div>
     </div>
-    <div class="card" onclick="flipCard(this)">
+    <div class="card" onclick="flipCard(this, '🕊️ 福氣禮')">
       <div class="card-inner">
         <div class="card-front">點我</div>
         <div class="card-back">🕊️ 福氣禮</div>
@@ -108,16 +115,42 @@
     </div>
   </div>
 
+  <audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a3e276502f.mp3?filename=flip-4-69974.mp3"></audio>
+
+  <form id="resultForm" action="https://docs.google.com/forms/d/e/1FAIpQLSfVC4cknPBHBoQQV9fs7xCI7JIFdtSje6PrhFehKDXhrPIpAQ/formResponse" method="POST" target="_blank" style="display:none">
+    <input name="entry.1862989920" id="resultInput">
+  </form>
+
   <script>
     let hasFlipped = false;
+    let countdown = 30;
+    const timerDisplay = document.getElementById('time');
+    const flipSound = document.getElementById('flipSound');
 
-    function flipCard(card) {
+    const interval = setInterval(() => {
+      countdown--;
+      timerDisplay.textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(interval);
+        document.querySelectorAll('.card').forEach(c => c.onclick = null);
+        document.getElementById('countdown').textContent = '時間到，請重新整理再試一次！';
+      }
+    }, 1000);
+
+    function flipCard(card, prize) {
       if (hasFlipped) return;
-      card.classList.add('flipped');
-      hasFlipped = true;
 
-      const allCards = document.querySelectorAll('.card');
-      allCards.forEach(c => c.onclick = null);
+      card.classList.add('flipped');
+      flipSound.play();
+      hasFlipped = true;
+      clearInterval(interval);
+
+      // 鎖定其餘卡片
+      document.querySelectorAll('.card').forEach(c => c.onclick = null);
+
+      // 送出表單
+      document.getElementById('resultInput').value = prize;
+      document.getElementById('resultForm').submit();
     }
   </script>
 
