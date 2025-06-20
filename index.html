@@ -60,8 +60,6 @@
     </div>
   </div>
 
-  <audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a3e276502f.mp3?filename=flip-4-69974.mp3"></audio>
-
   <!-- Google 表單，增加多個欄位 -->
   <form id="resultForm" action="https://docs.google.com/forms/d/e/1FAIpQLSe9s1I_xUjQY3LNeA1dX1yFExn5juBwzy48700vYsYPgRKCgg/formResponse" method="POST" target="hidden_iframe" style="display:none">
     <input name="entry.1143804336" id="userIdInput">      <!-- 對應 LINE UserID -->
@@ -82,7 +80,7 @@
     let interval;
 
     const timerDisplay = document.getElementById('time');
-    const flipSound = document.getElementById('flipSound');
+    // const flipSound = document.getElementById('flipSound'); // <-- 已移除
     const loadingDiv = document.getElementById('loading');
     const gameContentDiv = document.getElementById('game-content');
 
@@ -138,7 +136,7 @@
       clearInterval(interval); // 停止計時
       
       card.classList.add('flipped');
-      flipSound.play();
+      // flipSound.play(); // <-- 已移除
       
       // 鎖定其餘卡片並顯示結果
       document.querySelectorAll('.card').forEach(c => {
@@ -157,7 +155,9 @@
       document.getElementById('prizeInput').value = prize;
       document.getElementById('timeInput').value = timeTaken;
       
+      console.log("準備提交表單..."); // 增加一個日誌，方便除錯
       document.getElementById('resultForm').submit();
+      console.log("表單已提交！"); // 增加一個日誌，方便除錯
 
       // (可選) 2秒後自動關閉視窗
       setTimeout(() => {
