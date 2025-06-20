@@ -3,154 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <title>翻牌遊戲</title>
+  <!-- 引入 LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      height: 100%;
-      width: 100%;
-      font-family: "Microsoft JhengHei", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: #f4f4f4;
+      height: 100%; width: 100%; font-family: "Microsoft JhengHei", sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background-color: #f4f4f4; text-align: center;
     }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    p {
-      margin-bottom: 10px;
-    }
-
-    #countdown {
-      font-size: 20px;
-      margin-bottom: 30px;
-      color: #d35400;
-    }
-
-    .card-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      width: 100%;
-      padding: 0 10px;
-    }
-
-    .card {
-      flex: 1;
-      max-width: 300px;
-      height: 60vh;
-      perspective: 1000px;
-      cursor: pointer;
-    }
-
-    .card-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
-
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
+    h1 { margin-bottom: 10px; }
+    p { margin-bottom: 10px; }
+    #countdown { font-size: 20px; margin-bottom: 30px; color: #d35400; }
+    .card-container { display: flex; justify-content: center; gap: 20px; width: 100%; padding: 0 10px; }
+    .card { flex: 1; max-width: 300px; height: 60vh; perspective: 1000px; cursor: pointer; }
+    .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
     .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+      border: 1px solid #ccc; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;
     }
-
-    .card-front {
-      background: #2c3e50;
-      color: white;
-    }
-
-    .card-back {
-      background: #a3d5ff;
-      color: #333;
-      transform: rotateY(180deg);
-    }
+    .card-front { background: #2c3e50; color: white; }
+    .card-back { background: #a3d5ff; color: #333; transform: rotateY(180deg); }
+    #loading { font-size: 24px; }
   </style>
 </head>
 <body>
+  <!-- 初始載入畫面 -->
+  <div id="loading">遊戲載入中，請稍候...</div>
+  
+  <!-- 遊戲主畫面 (預設隱藏) -->
+  <div id="game-content" style="display:none;">
+    <h1>🎴 翻牌抽禮遊戲</h1>
+    <p>點擊任一張卡片查看你獲得的是哪一禮！</p>
+    <div id="countdown">請在 <span id="time">30</span> 秒內翻牌！</div>
 
-  <h1>🎴 翻牌抽禮遊戲</h1>
-  <p>點擊任一張卡片查看你獲得的是哪一禮！</p>
-  <div id="countdown">請在 <span id="time">30</span> 秒內翻牌！</div>
-
-  <div class="card-container">
-    <div class="card" onclick="flipCard(this, '🎁 幸運禮')">
-      <div class="card-inner">
-        <div class="card-front">點我</div>
-        <div class="card-back">🎁 幸運禮</div>
+    <div class="card-container">
+      <div class="card" onclick="flipCard(this, '🎁 幸運禮')">
+        <div class="card-inner">
+          <div class="card-front">點我</div>
+          <div class="card-back">🎁 幸運禮</div>
+        </div>
       </div>
-    </div>
-    <div class="card" onclick="flipCard(this, '💰 發財禮')">
-      <div class="card-inner">
-        <div class="card-front">點我</div>
-        <div class="card-back">💰 發財禮</div>
+      <div class="card" onclick="flipCard(this, '💰 發財禮')">
+        <div class="card-inner">
+          <div class="card-front">點我</div>
+          <div class="card-back">💰 發財禮</div>
+        </div>
       </div>
-    </div>
-    <div class="card" onclick="flipCard(this, '🕊️ 福氣禮')">
-      <div class="card-inner">
-        <div class="card-front">點我</div>
-        <div class="card-back">🕊️ 福氣禮</div>
+      <div class="card" onclick="flipCard(this, '🕊️ 福氣禮')">
+        <div class="card-inner">
+          <div class="card-front">點我</div>
+          <div class="card-back">🕊️ 福氣禮</div>
+        </div>
       </div>
     </div>
   </div>
 
   <audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a3e276502f.mp3?filename=flip-4-69974.mp3"></audio>
 
-  <form id="resultForm" action="https://docs.google.com/forms/d/e/1FAIpQLSfVC4cknPBHBoQQV9fs7xCI7JIFdtSje6PrhFehKDXhrPIpAQ/formResponse" method="POST" target="_blank" style="display:none">
-    <input name="entry.1862989920" id="resultInput">
+  <!-- Google 表單，增加多個欄位 -->
+  <form id="resultForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdxcEzHpmiP-9-n2ZDLjpUVOcSZlTNz00d523QrSWMxzsmyMw/formResponse" method="POST" target="hidden_iframe" style="display:none">
+    <input name="entry.613258976" id="userIdInput">      <!-- 對應 LINE UserID -->
+    <input name="entry.2085393549" id="nameInput">        <!-- 對應 LINE 暱稱 -->
+    <input name="entry.178410316" id="prizeInput">       <!-- 對應 抽中獎項 -->
+    <input name="entry.141167096" id="timeInput">        <!-- 對應 完成時間 -->
   </form>
+  <!-- 增加一個隱藏的 iframe 來處理表單提交，避免頁面跳轉 -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+
 
   <script>
+    // --- 全域變數 ---
     let hasFlipped = false;
     let countdown = 30;
+    let lineUserId = '';      // 用來儲存 LINE User ID
+    let lineDisplayName = ''; // 用來儲存 LINE 顯示名稱
+    let interval;
+
     const timerDisplay = document.getElementById('time');
     const flipSound = document.getElementById('flipSound');
+    const loadingDiv = document.getElementById('loading');
+    const gameContentDiv = document.getElementById('game-content');
 
-    const interval = setInterval(() => {
-      countdown--;
-      timerDisplay.textContent = countdown;
-      if (countdown <= 0) {
-        clearInterval(interval);
-        document.querySelectorAll('.card').forEach(c => c.onclick = null);
-        document.getElementById('countdown').textContent = '時間到，請重新整理再試一次！';
+    // --- LIFF 初始化與主程式 ---
+    async function main() {
+      try {
+        // 在這裡換成你的 LIFF ID
+        await liff.init({ liffId: "2007611369-ZJ9eE5xl" }); 
+        
+        if (!liff.isLoggedIn()) {
+          // 如果用戶沒登入，引導他們登入
+          loadingDiv.textContent = "請先登入 LINE 才能開始遊戲";
+          liff.login();
+        } else {
+          // 獲取用戶資料
+          const profile = await liff.getProfile();
+          lineUserId = profile.userId;
+          lineDisplayName = profile.displayName;
+          
+          // 顯示遊戲畫面，開始倒數
+          loadingDiv.style.display = 'none';
+          gameContentDiv.style.display = 'flex';
+          gameContentDiv.style.flexDirection = 'column';
+          gameContentDiv.style.alignItems = 'center';
+          startTimer();
+        }
+      } catch (error) {
+        console.error(error);
+        loadingDiv.textContent = "LIFF 初始化失敗，請在 LINE App 中開啟此頁面。";
       }
-    }, 1000);
+    }
+
+    // 啟動 LIFF
+    main();
+
+    // --- 遊戲邏輯 ---
+    function startTimer() {
+      interval = setInterval(() => {
+        countdown--;
+        timerDisplay.textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(interval);
+          document.querySelectorAll('.card').forEach(c => c.onclick = null);
+          document.getElementById('countdown').innerHTML = '時間到！<br>請關閉頁面後再試一次。';
+        }
+      }, 1000);
+    }
 
     function flipCard(card, prize) {
       if (hasFlipped) return;
 
+      hasFlipped = true;
+      clearInterval(interval); // 停止計時
+      
       card.classList.add('flipped');
       flipSound.play();
-      hasFlipped = true;
-      clearInterval(interval);
+      
+      // 鎖定其餘卡片並顯示結果
+      document.querySelectorAll('.card').forEach(c => {
+          c.onclick = null; 
+          c.style.cursor = 'default';
+      });
+      document.getElementById('countdown').innerHTML = `恭喜您抽中【${prize}】！<br>獎勵將發送至您的帳號。`;
 
-      // 鎖定其餘卡片
-      document.querySelectorAll('.card').forEach(c => c.onclick = null);
 
-      // 送出表單
-      document.getElementById('resultInput').value = prize;
+      // 計算完成時間
+      const timeTaken = 30 - countdown;
+
+      // 準備並送出表單
+      document.getElementById('userIdInput').value = lineUserId;
+      document.getElementById('nameInput').value = lineDisplayName;
+      document.getElementById('prizeInput').value = prize;
+      document.getElementById('timeInput').value = timeTaken;
+      
       document.getElementById('resultForm').submit();
+
+      // (可選) 2秒後自動關閉視窗
+      setTimeout(() => {
+        if (liff.isInClient()) {
+          liff.closeWindow();
+        }
+      }, 2000);
     }
   </script>
 
